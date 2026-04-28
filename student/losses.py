@@ -11,19 +11,33 @@ def mse_loss(prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
 
 
 def l1_loss(prediction: torch.Tensor, target: torch.Tensor) -> torch.Tensor:
-    raise NotImplementedError("TODO: implement l1_loss")
+    return torch.mean(torch.abs(prediction - target))
 
 
 def charbonnier_loss(prediction: torch.Tensor, target: torch.Tensor, eps: float = 1e-3) -> torch.Tensor:
-    raise NotImplementedError("TODO: implement charbonnier_loss")
+    diff = prediction - target
+    return torch.mean(torch.sqrt(diff * diff + eps * eps))
 
 
 def mse_l1_loss(prediction: torch.Tensor, target: torch.Tensor, l1_weight: float = 0.2) -> torch.Tensor:
-    raise NotImplementedError("TODO: implement mse_l1_loss")
+    diff = prediction - target
+    mse = torch.mean(diff * diff)
+    l1 = torch.mean(torch.abs(diff))
+    return mse + l1_weight * l1
 
 
 def mse_edge_loss(prediction: torch.Tensor, target: torch.Tensor, edge_weight: float = 0.1) -> torch.Tensor:
-    raise NotImplementedError("TODO: implement mse_edge_loss")
+    diff = prediction - target
+    mse = torch.mean(diff * diff)
+
+    pred_dx = prediction[:, 1:, :] - prediction[:, :-1, :]
+    target_dx = target[:, 1:, :] - target[:, :-1, :]
+    pred_dy = prediction[1:, :, :] - prediction[:-1, :, :]
+    target_dy = target[1:, :, :] - target[:-1, :, :]
+
+    edge_dx = torch.mean((pred_dx - target_dx) ** 2)
+    edge_dy = torch.mean((pred_dy - target_dy) ** 2)
+    return mse + edge_weight * (edge_dx + edge_dy)
 
 
 def build_loss(config: LossConfig):
