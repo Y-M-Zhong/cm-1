@@ -21,9 +21,9 @@ def get_sprint_setting() -> Config:
 
     # Editable fields: students may tune these.
     config.loss.name = "mse"
-    config.initializer.name = "random"
+    config.initializer.name = "image_sample"
     config.optimizer.name = "torch_adam"
-    config.optimizer.lr = 5e-2
+    config.optimizer.lr = 8e-2
     config.scheduler.name = "constant"
     config.model.use_anisotropic = True
     config.model.use_alpha = True
@@ -36,7 +36,7 @@ def get_standard_setting() -> Config:
 
     # Editable fields: students may tune these.
     config.loss.name = "mse"
-    config.initializer.name = "random"
+    config.initializer.name = "image_sample"
     config.optimizer.name = "torch_adam"
     config.optimizer.lr = 5e-2
     config.scheduler.name = "constant"
