@@ -130,21 +130,28 @@
 
 ## 任务 2 配置与结果
 
-任务 2 最终使用 `image_sample` 初始化、`mse` loss、`torch_adam` 优化器、`constant` scheduler，开启各向异性和 alpha。100 步 sprint 使用 `lr=0.08`；500 步 standard 使用 `lr=0.05`。
+任务 2 的目标是在 6 张测试图像上最大化平均 PSNR。硬约束保持不变：`1000` 个高斯、随机种子 `42`、图像大小 `128 x 128`、黑色背景。最终配置仍使用 `image_sample` 初始化、`mse` loss、`torch_adam` 优化器、`constant` scheduler，并开启各向异性和 alpha；主要调参集中在基础学习率和参数组学习率倍率。
+
+| Track | steps | loss | initializer | optimizer | base lr | center | scale | rotation | alpha | color | scheduler |
+| --- | ---: | --- | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
+| Task2A sprint | 100 | `mse` | `image_sample` | `torch_adam` | 0.10 | 0.5 | 1.0 | 1.0 | 2.0 | 2.0 | `constant` |
+| Task2B standard | 500 | `mse` | `image_sample` | `torch_adam` | 0.04 | 0.5 | 1.0 | 1.0 | 2.0 | 2.0 | `constant` |
 
 最终自测命令：
 
 ```bash
-python experiments/run_assignment2.py --track both --output outputs_assignment2_final_gpu
+python experiments/run_assignment2.py --track both --output outputs_assignment2_final
 ```
 
-| Track | R1 | R2 | R3 | S1 | S2 | S3 | 平均 PSNR |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Task2A 100 steps | 29.2814 | 26.9206 | 27.7189 | 27.6807 | 31.6878 | 28.8327 | 28.6870 |
-| Task2B 500 steps | 32.8823 | 28.9432 | 31.6249 | 32.9704 | 38.5795 | 35.3107 | 33.3852 |
+| Track | R1 Flamingo | R2 Starry Night | R3 Parkour | S1 Night Cityscape | S2 Mandala | S3 Coral Reef | 平均 PSNR | 估计得分 |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Task2A 100 steps | 30.7566 | 27.5554 | 29.0633 | 29.3847 | 35.1642 | 30.8492 | 30.4622 | 15 / 15 |
+| Task2B 500 steps | 33.5201 | 29.2998 | 32.1483 | 35.0358 | 43.2216 | 37.4549 | 35.1134 | 15 / 15 |
 
-100 步设置侧重快速收敛，因此使用更大学习率。500 步设置使用较稳的 `0.05`，在合成图上达到较高 PSNR，同时真实图保持稳定。尝试更大的 `0.08` 会导致合成图明显过冲，平均 PSNR 下降；`step_decay` 也会过早降低学习率，影响最终质量。
+按 `docs/assignment2.md` 的阈值，Task2A 平均 PSNR 高于 `29.5 dB`，Task2B 平均 PSNR 高于 `33.5 dB`，因此两项均达到满分线。
+
+调参时，单纯使用 460397c 中的配置只能得到 Task2A `28.6870 dB`、Task2B `33.3852 dB`，分别约为 `9 / 15` 和 `12 / 15`。最终配置的关键改动是降低中心参数学习率，同时提高 alpha 和颜色参数学习率。中心位置在 100 步和 500 步中都不宜过度震荡，因此使用 `center_lr_scale=0.5`；颜色和 alpha 直接决定像素强度，更高的 `2.0` 倍率可以更快匹配目标外观。100 步 sprint 使用较大的 `0.10` 基础学习率以提高早期收敛速度；500 步 standard 使用较稳的 `0.04`，避免长训练中合成图过冲。
 
 ## 总结
 
-本实验中最关键的设计是初始化、Adam 自适应优化和模型表达能力。`grid` 对单张火烈鸟消融最优，`image_sample` 在任务 2 多图平均上更好，尤其能利用合成目标的颜色先验。各向异性和 alpha 明显提升表达能力；学习率调度器在该全量优化问题中收益不明显。
+本实验中最关键的设计是初始化、Adam 自适应优化、模型表达能力和参数组学习率。`grid` 对单张火烈鸟消融最优，`image_sample` 在任务 2 多图平均上更好，尤其能利用合成目标的颜色先验。各向异性和 alpha 明显提升表达能力；学习率调度器在该全量优化问题中收益不明显。任务 2 最终通过调整基础学习率和中心/alpha/颜色参数组倍率达到两个 track 的满分阈值。

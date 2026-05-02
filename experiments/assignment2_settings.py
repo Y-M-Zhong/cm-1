@@ -23,7 +23,10 @@ def get_sprint_setting() -> Config:
     config.loss.name = "mse"
     config.initializer.name = "image_sample"
     config.optimizer.name = "torch_adam"
-    config.optimizer.lr = 8e-2
+    config.optimizer.lr = 1e-1
+    config.optimizer.param_groups.center_lr_scale = 0.5
+    config.optimizer.param_groups.alpha_lr_scale = 2.0
+    config.optimizer.param_groups.color_lr_scale = 2.0
     config.scheduler.name = "constant"
     config.model.use_anisotropic = True
     config.model.use_alpha = True
@@ -38,7 +41,10 @@ def get_standard_setting() -> Config:
     config.loss.name = "mse"
     config.initializer.name = "image_sample"
     config.optimizer.name = "torch_adam"
-    config.optimizer.lr = 5e-2
+    config.optimizer.lr = 4e-2
+    config.optimizer.param_groups.center_lr_scale = 0.5
+    config.optimizer.param_groups.alpha_lr_scale = 2.0
+    config.optimizer.param_groups.color_lr_scale = 2.0
     config.scheduler.name = "constant"
     config.model.use_anisotropic = True
     config.model.use_alpha = True
