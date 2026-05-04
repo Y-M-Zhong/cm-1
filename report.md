@@ -49,9 +49,9 @@
 | l1 | 29.6914 | -0.9021 | 0.00107364 | 0.01967952 | 0.01971452 |
 | charbonnier | 29.7096 | -0.8839 | 0.00106915 | 0.01959821 | 0.01990113 |
 
-[FIGURE_PLACEHOLDER: 1.2A loss curves, `report_assets/task1_2/1_2A_loss_curves.png`]
+![](report_assets/task1_2/1_2A_loss_curves.png)
 
-[FIGURE_PLACEHOLDER: 1.2A reconstruction/error comparison, `report_assets/task1_2/1_2A_comparison_sheet.png`]
+![](report_assets/task1_2/1_2A_comparison_sheet.png)
 
 `l1` 和 `charbonnier` 的 MAE 略低于 MSE 基线，说明它们确实更直接地压低平均绝对误差；但二者的 PSNR 分别低 `0.9021 dB` 和 `0.8839 dB`。PSNR 由 MSE 推导而来，因此当最终评分更关注均方误差时，直接优化 `mse` 更匹配评价目标。视觉上，鲁棒损失对大残差区域的惩罚更弱，容易保留局部高误差，从而使重建图的误差图更明显。
 
@@ -65,9 +65,9 @@
 | grid | 31.3897 | +0.7962 | 0.00072616 | 0.01820099 | 0.00199363 | 0.00073103 |
 | image_sample | 30.7968 | +0.2033 | 0.00083238 | 0.02033302 | 0.00232506 | 0.00082997 |
 
-[FIGURE_PLACEHOLDER: 1.2B loss curves, `report_assets/task1_2/1_2B_loss_curves.png`]
+![](report_assets/task1_2/1_2B_loss_curves.png)
 
-[FIGURE_PLACEHOLDER: 1.2B reconstruction/error comparison, `report_assets/task1_2/1_2B_comparison_sheet.png`]
+![](report_assets/task1_2/1_2B_comparison_sheet.png)
 
 `grid` 初始化在第 50 步的训练 loss 已经低于 random 基线，最终 PSNR 也提升 `0.7962 dB`，是本组最有效的初始化。原因是网格能让高斯一开始均匀覆盖整张图，减少 random 初始化中局部没有高斯覆盖的区域。`image_sample` 也比 random 高 `0.2033 dB`，说明利用目标颜色和图像分布能加速拟合；但在这张单图上，它弱于 `grid`，可能因为采样更集中在高响应区域，早期覆盖均匀性不如网格。
 
@@ -84,9 +84,9 @@
 | student_adamw | 30.2050 | -0.3885 | 0.00095389 | 0.02062576 | 0.00278072 | 0.00095532 |
 | student_muon | 20.5155 | -10.0780 | 0.00888071 | 0.07253133 | 0.05717371 | 0.00900617 |
 
-[FIGURE_PLACEHOLDER: 1.2C loss curves, `report_assets/task1_2/1_2C_loss_curves.png`]
+![](report_assets/task1_2/1_2C_loss_curves.png)
 
-[FIGURE_PLACEHOLDER: 1.2C reconstruction/error comparison, `report_assets/task1_2/1_2C_comparison_sheet.png`]
+![](report_assets/task1_2/1_2C_comparison_sheet.png)
 
 `student_adam` 与 `torch_adam` 最接近，PSNR 仅低 `0.0716 dB`，第 50 步 loss 也几乎相同，说明一阶矩、二阶矩和 bias correction 的实现基本正确。`student_sgd` 和 `student_momentum` 几乎没有有效下降，原因是本任务同时优化位置、尺度、颜色、alpha，不同参数的梯度尺度差异较大，固定全局学习率很难兼顾所有参数。`student_adamw` 略低于 Adam，说明 decoupled weight decay 在该图像拟合任务中不是主要收益来源，反而会轻微限制参数拟合能力。`student_muon` 明显优于 SGD/Momentum 但弱于 Adam，符合 Muon 更适合大矩阵神经网络权重，而本项目参数多为 `[N, 2]`、`[N, 3]` 小矩阵的预期。
 
@@ -101,9 +101,9 @@
 | isotropic + alpha | False | True | 27.5348 | -3.0587 | 0.00176407 | 0.02745778 |
 | anisotropic + alpha baseline | True | True | 30.5935 | +0.0000 | 0.00087226 | 0.01990399 |
 
-[FIGURE_PLACEHOLDER: 1.2D loss curves, `report_assets/task1_2/1_2D_loss_curves.png`]
+![](report_assets/task1_2/1_2D_loss_curves.png)
 
-[FIGURE_PLACEHOLDER: 1.2D reconstruction/error comparison, `report_assets/task1_2/1_2D_comparison_sheet.png`]
+![](report_assets/task1_2/1_2D_comparison_sheet.png)
 
 各向异性和 alpha 都能单独提升结果：在没有 alpha 时，开启各向异性把 PSNR 从 `26.3870` 提升到 `28.1458`；在各向同性下，开启 alpha 把 PSNR 从 `26.3870` 提升到 `27.5348`。二者同时开启达到 `30.5935`，高于任一单独开关，说明它们具有互补性。各向异性增强了对细长边缘和局部方向结构的表达能力，alpha 则让每个高斯可以控制贡献强度，降低颜色和密度之间的耦合。
 
@@ -118,9 +118,9 @@
 | warmup_cosine | 28.3661 | -2.2274 | 0.00145676 | 0.02514262 | 0.00183359 | 0.00145736 |
 | step_decay | 28.7539 | -1.8396 | 0.00133232 | 0.02418082 | 0.00171966 | 0.00133431 |
 
-[FIGURE_PLACEHOLDER: 1.2E loss curves, `report_assets/task1_2/1_2E_loss_curves.png`]
+![](report_assets/task1_2/1_2E_loss_curves.png)
 
-[FIGURE_PLACEHOLDER: 1.2E reconstruction/error comparison, `report_assets/task1_2/1_2E_comparison_sheet.png`]
+![](report_assets/task1_2/1_2E_comparison_sheet.png)
 
 三个调度器都没有超过 `constant`。本任务每一步使用整张图像计算 loss，不存在 minibatch 训练中的随机梯度噪声；同时 Adam 已经为不同参数提供自适应步长。Cosine、Warmup+Cosine 和 Step Decay 都会在中后期降低有效学习率，使最后阶段对位置、尺度和颜色的小幅修正不足，最终 MSE 高于 constant。Warmup+Cosine 最弱，主要是 200 步预算较短，warmup 消耗了早期快速下降的步数。
 
