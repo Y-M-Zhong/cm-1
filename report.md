@@ -1,4 +1,4 @@
-# CM2026 Project 1 实验报告草稿
+# CM2026 Project 1 实验报告
 
 ## 实验设置
 
@@ -13,9 +13,7 @@
 
 ## 任务 1.2 消融结果
 
-结果由 `python experiments/run_ablation.py --output outputs_ablation` 生成，原始数值位于 `outputs_ablation/summary.csv`，每个实验的逐步 loss 位于对应子目录的 `losses.csv`。为方便后续排版，本报告不直接插入图片，而是在每个小节放置图片占位符；对应的候选图片已整理到 `report_assets/task1_2/`。
-
-除被消融的模块外，所有实验均保持默认基线配置：`data/real_images/r1_flamingo_128.png`、`128 x 128`、`1000` 个高斯、`200` 步、随机种子 `42`、`mse` loss、`random` 初始化、`torch_adam`、`constant` scheduler、开启各向异性和 alpha。评价指标统一报告 `PSNR / MSE / MAE`，其中 PSNR 越高越好，MSE 和 MAE 越低越好。
+除被消融的模块外，所有实验均保持默认基线配置：`data/real_images/r1_flamingo_128.png`、`128 x 128`、`1000` 个高斯、`200` 步、随机种子 `42`、`mse` loss、`random` 初始化、`torch_adam`、`constant` scheduler、开启各向异性和 alpha。评价指标统一报告 `PSNR / MSE / MAE`，其中 PSNR 越高越好，MSE 和 MAE 越低越好。每个小节给出结果表，并结合 loss 曲线、重建图和误差图进行分析。
 
 ### 总览
 
@@ -137,20 +135,14 @@
 | Task2A sprint | 100 | `mse` | `image_sample` | `torch_adam` | 0.10 | 0.5 | 1.0 | 1.0 | 2.0 | 2.0 | `constant` |
 | Task2B standard | 500 | `mse` | `image_sample` | `torch_adam` | 0.04 | 0.5 | 1.0 | 1.0 | 2.0 | 2.0 | `constant` |
 
-最终自测命令：
-
-```bash
-python experiments/run_assignment2.py --track both --output outputs_assignment2_final
-```
-
-| Track | R1 Flamingo | R2 Starry Night | R3 Parkour | S1 Night Cityscape | S2 Mandala | S3 Coral Reef | 平均 PSNR | 估计得分 |
-| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
-| Task2A 100 steps | 30.7566 | 27.5554 | 29.0633 | 29.3847 | 35.1642 | 30.8492 | 30.4622 | 15 / 15 |
-| Task2B 500 steps | 33.5201 | 29.2998 | 32.1483 | 35.0358 | 43.2216 | 37.4549 | 35.1134 | 15 / 15 |
+| Track | R1 Flamingo | R2 Starry Night | R3 Parkour | S1 Night Cityscape | S2 Mandala | S3 Coral Reef | 平均 PSNR |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| Task2A 100 steps | 30.7566 | 27.5554 | 29.0633 | 29.3847 | 35.1642 | 30.8492 | 30.4622 |
+| Task2B 500 steps | 33.5201 | 29.2998 | 32.1483 | 35.0358 | 43.2216 | 37.4549 | 35.1134 |
 
 按 `docs/assignment2.md` 的阈值，Task2A 平均 PSNR 高于 `29.5 dB`，Task2B 平均 PSNR 高于 `33.5 dB`，因此两项均达到满分线。
 
-调参时，单纯使用 460397c 中的配置只能得到 Task2A `28.6870 dB`、Task2B `33.3852 dB`，分别约为 `9 / 15` 和 `12 / 15`。最终配置的关键改动是降低中心参数学习率，同时提高 alpha 和颜色参数学习率。中心位置在 100 步和 500 步中都不宜过度震荡，因此使用 `center_lr_scale=0.5`；颜色和 alpha 直接决定像素强度，更高的 `2.0` 倍率可以更快匹配目标外观。100 步 sprint 使用较大的 `0.10` 基础学习率以提高早期收敛速度；500 步 standard 使用较稳的 `0.04`，避免长训练中合成图过冲。
+最终配置的关键设计是降低中心参数学习率，同时提高 alpha 和颜色参数学习率。中心位置在 100 步和 500 步中都不宜过度震荡，因此使用 `center_lr_scale=0.5`；颜色和 alpha 直接决定像素强度，更高的 `2.0` 倍率可以更快匹配目标外观。100 步 sprint 使用较大的 `0.10` 基础学习率以提高早期收敛速度；500 步 standard 使用较稳的 `0.04`，避免长训练中合成图过冲。
 
 ## 总结
 
